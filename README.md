@@ -4,7 +4,7 @@ This Solidity smart contract, Library control system, is designed to manage the 
 
 ## Description
 
-The Library Control System Solidity smart contract is a decentralized system built on the Ethereum blockchain to manage the problems that arises at library, managing the book stacks, find the correct location of the book where it is.
+The Library Control System Solidity smart contract is a decentralized system built on the Ethereum blockchain to manage the problems that arises at library.
 
 ## Getting Started
 
