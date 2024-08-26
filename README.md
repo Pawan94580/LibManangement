@@ -1,10 +1,10 @@
-# Passport Control System 
+# Library Control System 
 
-This Solidity smart contract, Passport control system, is designed to manage the creation, revocation, view and renewal of passports on the Ethereum blockchain.
+This Solidity smart contract, Library control system, is designed to manage the library on the Ethereum blockchain.
 
 ## Description
 
-The Passport control system Solidity smart contract is a decentralized system built on the Ethereum blockchain to manage the lifecycle of a travel passport, including creation, cancellation, view and renewal.
+The Library Control System Solidity smart contract is a decentralized system built on the Ethereum blockchain to manage the problems that arises at library, managing the book stacks, find the correct location of the book where it is.
 
 ## Getting Started
 
@@ -12,94 +12,91 @@ In this assessment, I have used remix IDE [https://remix.ethereum.org/]
 
 ### Executing program
 
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-contract PassportManagement {
+contract LibraryManagement {
 
-    enum PassportType { Regular, Diplomatic, Official }
+    enum BookCategory { Fiction, NonFiction, Science, History }
 
-    struct Passport {
-        address owner;
-        PassportType passportType;
-        string name;
-        string nationality;
-        uint dateOfBirth;
-        uint issueDate;
-        uint expiryDate;
-        bool isValid;
+    struct Book {
+        address borrower;
+        BookCategory category;
+        string title;
+        string author;
+        uint publicationDate;
+        uint borrowDate;
+        uint dueDate;
+        bool isBorrowed;
     }
 
-    mapping(uint => Passport) public passports;
-    uint public nextPassportId = 1;
+    mapping(uint => Book) public books;
+    uint public nextBookId = 1;
 
-    event PassportCreationAttempt(address owner, uint issueDate, uint expiryDate);
+    event BorrowAttempt(address borrower, uint borrowDate, uint dueDate);
 
-function createPassport(
-    address _owner,
-    PassportType _passportType,
-    string memory _name,
-    string memory _nationality,
-    uint _dateOfBirth,
-    uint _issueDate,
-    uint _expiryDate
-) public {
-    emit PassportCreationAttempt(_owner, _issueDate, _expiryDate);
-    require(_issueDate < _expiryDate, "Issue date must be before expiry date");
+    function borrowBook(
+        address _borrower,
+        BookCategory _category,
+        string memory _title,
+        string memory _author,
+        uint _publicationDate,
+        uint _borrowDate,
+        uint _dueDate
+    ) public {
+        emit BorrowAttempt(_borrower, _borrowDate, _dueDate);
+        require(_borrowDate < _dueDate, "Borrow date must be before due date");
 
-    passports[nextPassportId++] = Passport(
-        _owner, 
-        _passportType, 
-        _name, 
-        _nationality, 
-        _dateOfBirth, 
-        _issueDate, 
-        _expiryDate, 
-        true
-    );
+        books[nextBookId++] = Book(
+            _borrower, 
+            _category, 
+            _title, 
+            _author, 
+            _publicationDate, 
+            _borrowDate, 
+            _dueDate, 
+            true
+        );
+    }
+
+    function returnBook(uint _bookId) public {
+        Book storage book = books[_bookId];
+        // Check if book exists and is borrowed
+        require(book.borrower != address(0), "Book does not exist");
+        require(book.isBorrowed, "Book is already returned");
+        require(book.borrower == msg.sender, "Unauthorized");
+
+        book.isBorrowed = false;
+    }
+
+    function viewBook(uint _bookId) public view returns (Book memory) {
+        Book memory book = books[_bookId];
+        // Check if book exists and is borrowed
+        require(book.borrower != address(0), "Book does not exist");
+        require(book.isBorrowed, "Book is not currently borrowed");
+        require(book.borrower == msg.sender || msg.sender == address(0), "Unauthorized"); // Example: Allow anyone to view borrowed books
+
+        return book;
+    }
+
+    function renewBook(uint _bookId, uint _newDueDate) public {
+        Book storage book = books[_bookId];
+        // Check if book exists and is borrowed
+        require(book.borrower != address(0), "Book does not exist");
+        require(book.isBorrowed, "Book is not currently borrowed");
+        require(book.borrower == msg.sender, "Unauthorized");
+        require(_newDueDate > book.dueDate, "New due date must be after current due date");
+
+        book.dueDate = _newDueDate;
+    }
 }
-
-
-    function revokePassport(uint _passportId) public {
-        Passport storage passport = passports[_passportId];
-        // Check if passport exists and is valid
-        require(passport.owner != address(0), "Passport does not exist");
-        require(passport.isValid, "Passport is already invalid");
-        require(passport.owner == msg.sender, "Unauthorized");
-
-        passport.isValid = false;
-    }
-
-    function viewPassport(uint _passportId) public view returns (Passport memory) {
-        Passport memory passport = passports[_passportId];
-        // Check if passport exists and is valid
-        require(passport.owner != address(0), "Passport does not exist");
-        require(passport.isValid, "Passport is invalid");
-        require(passport.owner == msg.sender || msg.sender == address(0), "Unauthorized"); // Example: Allow anyone to view valid passports
-
-        return passport;
-    }
-
-    function renewPassport(uint _passportId, uint _newExpiryDate) public {
-        Passport storage passport = passports[_passportId];
-        // Check if passport exists and is valid
-        require(passport.owner != address(0), "Passport does not exist");
-        require(passport.isValid, "Invalid passport");
-        require(passport.owner == msg.sender, "Unauthorized");
-        require(_newExpiryDate > passport.expiryDate, "New expiry date must be after current expiry date");
-
-        passport.expiryDate = _newExpiryDate;
-    }
-}
-
 To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.7" (or another compatible version), and then click on the "Compile AccountManagement.sol" button.
 
-Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "Passport Control System" contract from the dropdown menu, and then click on the "Deploy" button.
+Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "Library Control System" contract from the dropdown menu, and then click on the "Deploy" button.
 
 ## Authors
 
-Manish Kumar - (https://www.linkedin.com/in/manish-kmr/)
+Pawan Kumar - (https://www.linkedin.com/in/pawan-pandey-540a94266/)
 
 
 ## License
